@@ -5,7 +5,7 @@ import Dashboard from "./components/Dashboard";
 import ItemForm from "./components/ItemForm";
 import CalendarView from "./components/CalendarView";
 
-const appStyle: React.CSSProperties = {
+const appStyle = {
   background: "linear-gradient(135deg, #0f172a, #1e293b)",
   minHeight: "100vh",
   color: "white",
