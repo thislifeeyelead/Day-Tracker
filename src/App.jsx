@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useState } from "react";
 import Nav from "./components/Nav";
 import Dashboard from "./components/Dashboard";
@@ -12,27 +11,10 @@ const appStyle = {
   fontFamily: "system-ui, sans-serif",
 };
 
-export type Checklist = {
-  guidelines: boolean;
-  visit: boolean;
-  report: boolean;
-};
-
-export type HubItem = {
-  id: number;
-  title: string;
-  platform: string;
-  category: string;
-  date: string;
-  time: string;
-  pay: string;
-  checklist: Checklist;
-};
-
 export default function App() {
-  const [items, setItems] = useState<HubItem[]>([]);
-  const [goal, setGoal] = useState<number>(200);
-  const [view, setView] = useState<"dashboard" | "add" | "calendar">("dashboard");
+  const [items, setItems] = useState([]);
+  const [goal, setGoal] = useState(200);
+  const [view, setView] = useState("dashboard");
 
   useEffect(() => {
     const savedItems = localStorage.getItem("darcy_v5_items");
@@ -61,9 +43,9 @@ export default function App() {
     () =>
       items.filter(
         (i) =>
-          !i.checklist.guidelines ||
-          !i.checklist.visit ||
-          !i.checklist.report
+          !i.checklist?.guidelines ||
+          !i.checklist?.visit ||
+          !i.checklist?.report
       ),
     [items]
   );
@@ -137,9 +119,7 @@ export default function App() {
         )}
 
         {view === "add" && (
-          <ItemForm
-            onAdd={(item) => setItems((prev) => [...prev, item])}
-          />
+          <ItemForm onAdd={(item) => setItems((prev) => [...prev, item])} />
         )}
 
         {view === "calendar" && (
