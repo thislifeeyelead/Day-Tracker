@@ -10,13 +10,11 @@ export default function CalendarView({ items, setItems }) {
   const monthDays = useMemo(() => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
-
     const firstDay = new Date(year, month, 1);
     const startWeekday = firstDay.getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const cells = [];
-
     for (let i = 0; i < startWeekday; i++) cells.push(null);
     for (let day = 1; day <= daysInMonth; day++) cells.push(new Date(year, month, day));
     while (cells.length % 7 !== 0) cells.push(null);
@@ -39,6 +37,18 @@ export default function CalendarView({ items, setItems }) {
               ...item.checklist,
               [key]: !item.checklist[key]
             }
+          }
+        : item
+    );
+    setItems(updated);
+  }
+
+  function toggleFinished(id) {
+    const updated = items.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            completed: !item.completed
           }
         : item
     );
@@ -101,7 +111,10 @@ export default function CalendarView({ items, setItems }) {
         >
           <button onClick={previousMonth} style={navBtn}>←</button>
           <div style={{ fontSize: 22, fontWeight: "bold" }}>
-            {currentMonth.toLocaleString("en-US", { month: "long", year: "numeric" })}
+            {currentMonth.toLocaleString("en-US", {
+              month: "long",
+              year: "numeric"
+            })}
           </div>
           <button onClick={nextMonth} style={navBtn}>→</button>
         </div>
@@ -217,11 +230,22 @@ export default function CalendarView({ items, setItems }) {
                   borderRadius: 16,
                   background: cardBackground(item.category),
                   backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  boxShadow: "0 8px 20px rgba(0,0,0,0.22)"
+                  border: item.completed
+                    ? "1px solid rgba(34,197,94,0.6)"
+                    : "1px solid rgba(255,255,255,0.12)",
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.22)",
+                  opacity: item.completed ? 0.7 : 1
                 }}
               >
-                <div style={{ fontSize: 18, fontWeight: "bold" }}>{item.title}</div>
+                <div
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    textDecoration: item.completed ? "line-through" : "none"
+                  }}
+                >
+                  {item.title}
+                </div>
 
                 <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>
                   {item.category}
@@ -229,85 +253,12 @@ export default function CalendarView({ items, setItems }) {
                   {item.platform ? ` • ${item.platform}` : ""}
                   {item.className ? ` • ${item.className}` : ""}
                   {item.workCompany ? ` • ${item.workCompany}` : ""}
+                  {item.mustDoToday ? " • Must do today" : ""}
                 </div>
 
                 {item.priority && (
                   <div style={{ marginTop: 6 }}>
                     <strong>Priority:</strong> {item.priority}
-                    {item.mustDoToday ? " • Must do today" : ""}
-                  </div>
-                )}
-
-                {item.category === "Mystery Shop" && (
-                  <>
-                    {!!item.taskType && <div style={{ marginTop: 8 }}><strong>Task Type:</strong> {item.taskType}</div>}
-                    {!!item.jobId && <div style={{ marginTop: 4 }}><strong>Job ID:</strong> {item.jobId}</div>}
-                    {!!item.address && <div style={{ marginTop: 4 }}><strong>Address:</strong> {item.address}</div>}
-                    {(item.assignedDate || item.dueDate) && (
-                      <div style={{ marginTop: 8 }}>
-                        <strong>Assigned:</strong> {item.assignedDate || "—"}{" "}
-                        <strong style={{ marginLeft: 12 }}>Due:</strong> {item.dueDate || "—"}
-                      </div>
-                    )}
-                    {(item.startTime || item.endTime) && (
-                      <div style={{ marginTop: 4 }}>
-                        <strong>Time Window:</strong> {item.startTime || "—"} to {item.endTime || "—"}
-                      </div>
-                    )}
-                    {!!item.pay && <div style={{ marginTop: 8, color: "#86efac", fontWeight: "bold" }}>${item.pay}</div>}
-                    {(item.contactName || item.contactEmail || item.contactPhone) && (
-                      <div style={{ marginTop: 10 }}>
-                        <div style={{ fontWeight: "bold", marginBottom: 4 }}>Contact</div>
-                        {!!item.contactName && <div>{item.contactName}</div>}
-                        {!!item.contactEmail && <div>{item.contactEmail}</div>}
-                        {!!item.contactPhone && <div>{item.contactPhone}</div>}
-                      </div>
-                    )}
-                    {(item.companyUrl || item.shopUrl) && (
-                      <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
-                        {!!item.companyUrl && <a href={item.companyUrl} target="_blank" rel="noreferrer" style={linkStyle}>Open company portal</a>}
-                        {!!item.shopUrl && <a href={item.shopUrl} target="_blank" rel="noreferrer" style={linkStyle}>Open task / shop link</a>}
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {item.category === "School" && (
-                  <>
-                    {!!item.className && <div style={{ marginTop: 8 }}><strong>Class:</strong> {item.className}</div>}
-                    {!!item.assignmentTitle && <div style={{ marginTop: 4 }}><strong>Assignment:</strong> {item.assignmentTitle}</div>}
-                    {!!item.dueDate && <div style={{ marginTop: 4 }}><strong>Due:</strong> {item.dueDate}</div>}
-                    {!!item.estimatedHours && <div style={{ marginTop: 4 }}><strong>Estimated Hours:</strong> {item.estimatedHours}</div>}
-                    {!!item.minimumHours && <div style={{ marginTop: 4 }}><strong>Minimum Hours Today:</strong> {item.minimumHours}</div>}
-                    {!!item.submissionLink && <div style={{ marginTop: 8 }}><a href={item.submissionLink} target="_blank" rel="noreferrer" style={linkStyle}>Open submission link</a></div>}
-                  </>
-                )}
-
-                {(item.category === "Driving" || item.category === "Delivery") && (
-                  <>
-                    {!!item.platform && <div style={{ marginTop: 8 }}><strong>Platform:</strong> {item.platform}</div>}
-                    {(item.startTime || item.endTime) && <div style={{ marginTop: 4 }}><strong>Block:</strong> {item.startTime || "—"} to {item.endTime || "—"}</div>}
-                    {!!item.targetHours && <div style={{ marginTop: 4 }}><strong>Target Hours:</strong> {item.targetHours}</div>}
-                    {!!item.targetEarnings && <div style={{ marginTop: 4 }}><strong>Target Earnings:</strong> ${item.targetEarnings}</div>}
-                    {!!item.minimumHours && <div style={{ marginTop: 4 }}><strong>Minimum Hours:</strong> {item.minimumHours}</div>}
-                    {!!item.minimumEarnings && <div style={{ marginTop: 4 }}><strong>Minimum Earnings:</strong> ${item.minimumEarnings}</div>}
-                    {!!item.zone && <div style={{ marginTop: 4 }}><strong>Zone Notes:</strong> {item.zone}</div>}
-                  </>
-                )}
-
-                {item.category === "Handshake / AI Work" && (
-                  <>
-                    {!!item.workCompany && <div style={{ marginTop: 8 }}><strong>Company / Platform:</strong> {item.workCompany}</div>}
-                    {!!item.dueDate && <div style={{ marginTop: 4 }}><strong>Deadline:</strong> {item.dueDate}</div>}
-                    {!!item.hourlyRate && <div style={{ marginTop: 4 }}><strong>Hourly Rate / Payout:</strong> {item.hourlyRate}</div>}
-                    {!!item.minimumHours && <div style={{ marginTop: 4 }}><strong>Minimum Hours:</strong> {item.minimumHours}</div>}
-                    {!!item.taskLink && <div style={{ marginTop: 8 }}><a href={item.taskLink} target="_blank" rel="noreferrer" style={linkStyle}>Open task link</a></div>}
-                  </>
-                )}
-
-                {!!item.estimatedHours && item.category !== "School" && (
-                  <div style={{ marginTop: 8 }}>
-                    <strong>Estimated Hours:</strong> {item.estimatedHours}
                   </div>
                 )}
 
@@ -336,20 +287,37 @@ export default function CalendarView({ items, setItems }) {
                   />
                 </div>
 
-                <button
-                  onClick={() => removeItem(item.id)}
-                  style={{
-                    marginTop: 12,
-                    padding: "8px 12px",
-                    border: "none",
-                    borderRadius: 10,
-                    cursor: "pointer",
-                    background: "rgba(239,68,68,0.18)",
-                    color: "#fecaca"
-                  }}
-                >
-                  Delete
-                </button>
+                <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => toggleFinished(item.id)}
+                    style={{
+                      padding: "8px 12px",
+                      border: "none",
+                      borderRadius: 10,
+                      cursor: "pointer",
+                      background: item.completed
+                        ? "rgba(59,130,246,0.18)"
+                        : "rgba(34,197,94,0.2)",
+                      color: "white"
+                    }}
+                  >
+                    {item.completed ? "Reopen" : "Finished"}
+                  </button>
+
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    style={{
+                      padding: "8px 12px",
+                      border: "none",
+                      borderRadius: 10,
+                      cursor: "pointer",
+                      background: "rgba(239,68,68,0.18)",
+                      color: "#fecaca"
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -384,11 +352,6 @@ const navBtn = {
   background: "rgba(255,255,255,0.08)",
   color: "white",
   fontWeight: "bold"
-};
-
-const linkStyle = {
-  color: "#93c5fd",
-  textDecoration: "underline"
 };
 
 function formatDateLocal(date) {
