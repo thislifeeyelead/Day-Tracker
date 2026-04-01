@@ -17,17 +17,9 @@ export default function CalendarView({ items, setItems }) {
 
     const cells = [];
 
-    for (let i = 0; i < startWeekday; i++) {
-      cells.push(null);
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      cells.push(new Date(year, month, day));
-    }
-
-    while (cells.length % 7 !== 0) {
-      cells.push(null);
-    }
+    for (let i = 0; i < startWeekday; i++) cells.push(null);
+    for (let day = 1; day <= daysInMonth; day++) cells.push(new Date(year, month, day));
+    while (cells.length % 7 !== 0) cells.push(null);
 
     return cells;
   }, [currentMonth]);
@@ -76,8 +68,9 @@ export default function CalendarView({ items, setItems }) {
 
   function cardBackground(category) {
     if (category === "Mystery Shop") return "rgba(34,197,94,0.12)";
-    if (category === "Delivery") return "rgba(59,130,246,0.12)";
+    if (category === "Driving" || category === "Delivery") return "rgba(59,130,246,0.12)";
     if (category === "School") return "rgba(245,158,11,0.12)";
+    if (category === "Handshake / AI Work") return "rgba(139,92,246,0.16)";
     return "rgba(255,255,255,0.06)";
   }
 
@@ -106,20 +99,11 @@ export default function CalendarView({ items, setItems }) {
             marginBottom: 16
           }}
         >
-          <button onClick={previousMonth} style={navBtn}>
-            ←
-          </button>
-
+          <button onClick={previousMonth} style={navBtn}>←</button>
           <div style={{ fontSize: 22, fontWeight: "bold" }}>
-            {currentMonth.toLocaleString("en-US", {
-              month: "long",
-              year: "numeric"
-            })}
+            {currentMonth.toLocaleString("en-US", { month: "long", year: "numeric" })}
           </div>
-
-          <button onClick={nextMonth} style={navBtn}>
-            →
-          </button>
+          <button onClick={nextMonth} style={navBtn}>→</button>
         </div>
 
         <div
@@ -181,8 +165,7 @@ export default function CalendarView({ items, setItems }) {
                   color: "white",
                   cursor: "pointer",
                   padding: 8,
-                  textAlign: "left",
-                  position: "relative"
+                  textAlign: "left"
                 }}
               >
                 <div style={{ fontWeight: "bold" }}>{dateObj.getDate()}</div>
@@ -198,12 +181,8 @@ export default function CalendarView({ items, setItems }) {
                       fontSize: 11
                     }}
                   >
-                    {
-                      items.filter((item) => item.dueDate === dateKey).length
-                    } item
-                    {items.filter((item) => item.dueDate === dateKey).length !== 1
-                      ? "s"
-                      : ""}
+                    {items.filter((item) => item.dueDate === dateKey).length} item
+                    {items.filter((item) => item.dueDate === dateKey).length !== 1 ? "s" : ""}
                   </div>
                 )}
               </button>
@@ -242,129 +221,117 @@ export default function CalendarView({ items, setItems }) {
                   boxShadow: "0 8px 20px rgba(0,0,0,0.22)"
                 }}
               >
-                <div style={{ fontSize: 18, fontWeight: "bold" }}>
-                  {item.title}
-                </div>
+                <div style={{ fontSize: 18, fontWeight: "bold" }}>{item.title}</div>
 
                 <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>
-                  {item.company} • {item.category}
+                  {item.category}
+                  {item.company ? ` • ${item.company}` : ""}
+                  {item.platform ? ` • ${item.platform}` : ""}
+                  {item.className ? ` • ${item.className}` : ""}
+                  {item.workCompany ? ` • ${item.workCompany}` : ""}
                 </div>
 
-                {!!item.taskType && (
-                  <div style={{ marginTop: 8 }}>
-                    <strong>Task Type:</strong> {item.taskType}
+                {item.priority && (
+                  <div style={{ marginTop: 6 }}>
+                    <strong>Priority:</strong> {item.priority}
+                    {item.mustDoToday ? " • Must do today" : ""}
                   </div>
                 )}
 
-                {!!item.jobId && (
-                  <div style={{ marginTop: 4 }}>
-                    <strong>Job ID:</strong> {item.jobId}
-                  </div>
-                )}
-
-                {!!item.address && (
-                  <div style={{ marginTop: 4 }}>
-                    <strong>Address:</strong> {item.address}
-                  </div>
-                )}
-
-                {(item.assignedDate || item.dueDate) && (
-                  <div style={{ marginTop: 8 }}>
-                    <strong>Assigned:</strong> {item.assignedDate || "—"}{" "}
-                    <strong style={{ marginLeft: 12 }}>Due:</strong>{" "}
-                    {item.dueDate || "—"}
-                  </div>
-                )}
-
-                {(item.startTime || item.endTime) && (
-                  <div style={{ marginTop: 4 }}>
-                    <strong>Time Window:</strong> {item.startTime || "—"} to{" "}
-                    {item.endTime || "—"}
-                  </div>
-                )}
-
-                {!!item.pay && (
-                  <div
-                    style={{
-                      marginTop: 8,
-                      color: "#86efac",
-                      fontWeight: "bold"
-                    }}
-                  >
-                    ${item.pay}
-                  </div>
-                )}
-
-                {(item.contactName ||
-                  item.contactEmail ||
-                  item.contactPhone) && (
-                  <div style={{ marginTop: 10 }}>
-                    <div style={{ fontWeight: "bold", marginBottom: 4 }}>
-                      Contact
-                    </div>
-                    {!!item.contactName && <div>{item.contactName}</div>}
-                    {!!item.contactEmail && <div>{item.contactEmail}</div>}
-                    {!!item.contactPhone && <div>{item.contactPhone}</div>}
-                  </div>
-                )}
-
-                {(item.companyUrl || item.shopUrl) && (
-                  <div
-                    style={{
-                      marginTop: 10,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 6
-                    }}
-                  >
-                    {!!item.companyUrl && (
-                      <a
-                        href={item.companyUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={linkStyle}
-                      >
-                        Open company portal
-                      </a>
+                {item.category === "Mystery Shop" && (
+                  <>
+                    {!!item.taskType && <div style={{ marginTop: 8 }}><strong>Task Type:</strong> {item.taskType}</div>}
+                    {!!item.jobId && <div style={{ marginTop: 4 }}><strong>Job ID:</strong> {item.jobId}</div>}
+                    {!!item.address && <div style={{ marginTop: 4 }}><strong>Address:</strong> {item.address}</div>}
+                    {(item.assignedDate || item.dueDate) && (
+                      <div style={{ marginTop: 8 }}>
+                        <strong>Assigned:</strong> {item.assignedDate || "—"}{" "}
+                        <strong style={{ marginLeft: 12 }}>Due:</strong> {item.dueDate || "—"}
+                      </div>
                     )}
-                    {!!item.shopUrl && (
-                      <a
-                        href={item.shopUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={linkStyle}
-                      >
-                        Open task / shop link
-                      </a>
+                    {(item.startTime || item.endTime) && (
+                      <div style={{ marginTop: 4 }}>
+                        <strong>Time Window:</strong> {item.startTime || "—"} to {item.endTime || "—"}
+                      </div>
                     )}
+                    {!!item.pay && <div style={{ marginTop: 8, color: "#86efac", fontWeight: "bold" }}>${item.pay}</div>}
+                    {(item.contactName || item.contactEmail || item.contactPhone) && (
+                      <div style={{ marginTop: 10 }}>
+                        <div style={{ fontWeight: "bold", marginBottom: 4 }}>Contact</div>
+                        {!!item.contactName && <div>{item.contactName}</div>}
+                        {!!item.contactEmail && <div>{item.contactEmail}</div>}
+                        {!!item.contactPhone && <div>{item.contactPhone}</div>}
+                      </div>
+                    )}
+                    {(item.companyUrl || item.shopUrl) && (
+                      <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                        {!!item.companyUrl && <a href={item.companyUrl} target="_blank" rel="noreferrer" style={linkStyle}>Open company portal</a>}
+                        {!!item.shopUrl && <a href={item.shopUrl} target="_blank" rel="noreferrer" style={linkStyle}>Open task / shop link</a>}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {item.category === "School" && (
+                  <>
+                    {!!item.className && <div style={{ marginTop: 8 }}><strong>Class:</strong> {item.className}</div>}
+                    {!!item.assignmentTitle && <div style={{ marginTop: 4 }}><strong>Assignment:</strong> {item.assignmentTitle}</div>}
+                    {!!item.dueDate && <div style={{ marginTop: 4 }}><strong>Due:</strong> {item.dueDate}</div>}
+                    {!!item.estimatedHours && <div style={{ marginTop: 4 }}><strong>Estimated Hours:</strong> {item.estimatedHours}</div>}
+                    {!!item.minimumHours && <div style={{ marginTop: 4 }}><strong>Minimum Hours Today:</strong> {item.minimumHours}</div>}
+                    {!!item.submissionLink && <div style={{ marginTop: 8 }}><a href={item.submissionLink} target="_blank" rel="noreferrer" style={linkStyle}>Open submission link</a></div>}
+                  </>
+                )}
+
+                {(item.category === "Driving" || item.category === "Delivery") && (
+                  <>
+                    {!!item.platform && <div style={{ marginTop: 8 }}><strong>Platform:</strong> {item.platform}</div>}
+                    {(item.startTime || item.endTime) && <div style={{ marginTop: 4 }}><strong>Block:</strong> {item.startTime || "—"} to {item.endTime || "—"}</div>}
+                    {!!item.targetHours && <div style={{ marginTop: 4 }}><strong>Target Hours:</strong> {item.targetHours}</div>}
+                    {!!item.targetEarnings && <div style={{ marginTop: 4 }}><strong>Target Earnings:</strong> ${item.targetEarnings}</div>}
+                    {!!item.minimumHours && <div style={{ marginTop: 4 }}><strong>Minimum Hours:</strong> {item.minimumHours}</div>}
+                    {!!item.minimumEarnings && <div style={{ marginTop: 4 }}><strong>Minimum Earnings:</strong> ${item.minimumEarnings}</div>}
+                    {!!item.zone && <div style={{ marginTop: 4 }}><strong>Zone Notes:</strong> {item.zone}</div>}
+                  </>
+                )}
+
+                {item.category === "Handshake / AI Work" && (
+                  <>
+                    {!!item.workCompany && <div style={{ marginTop: 8 }}><strong>Company / Platform:</strong> {item.workCompany}</div>}
+                    {!!item.dueDate && <div style={{ marginTop: 4 }}><strong>Deadline:</strong> {item.dueDate}</div>}
+                    {!!item.hourlyRate && <div style={{ marginTop: 4 }}><strong>Hourly Rate / Payout:</strong> {item.hourlyRate}</div>}
+                    {!!item.minimumHours && <div style={{ marginTop: 4 }}><strong>Minimum Hours:</strong> {item.minimumHours}</div>}
+                    {!!item.taskLink && <div style={{ marginTop: 8 }}><a href={item.taskLink} target="_blank" rel="noreferrer" style={linkStyle}>Open task link</a></div>}
+                  </>
+                )}
+
+                {!!item.estimatedHours && item.category !== "School" && (
+                  <div style={{ marginTop: 8 }}>
+                    <strong>Estimated Hours:</strong> {item.estimatedHours}
                   </div>
                 )}
 
                 {!!item.notes && (
                   <div style={{ marginTop: 12 }}>
-                    <div style={{ fontWeight: "bold", marginBottom: 4 }}>
-                      Notes
-                    </div>
-                    <div style={{ whiteSpace: "pre-wrap", opacity: 0.9 }}>
-                      {item.notes}
-                    </div>
+                    <div style={{ fontWeight: "bold", marginBottom: 4 }}>Notes</div>
+                    <div style={{ whiteSpace: "pre-wrap", opacity: 0.9 }}>{item.notes}</div>
                   </div>
                 )}
 
                 <div style={{ marginTop: 12 }}>
                   <CheckRow
                     label="Guidelines"
-                    checked={item.checklist.guidelines}
+                    checked={item.checklist?.guidelines}
                     onClick={() => toggle(item.id, "guidelines")}
                   />
                   <CheckRow
                     label="Visit"
-                    checked={item.checklist.visit}
+                    checked={item.checklist?.visit}
                     onClick={() => toggle(item.id, "visit")}
                   />
                   <CheckRow
                     label="Report"
-                    checked={item.checklist.report}
+                    checked={item.checklist?.report}
                     onClick={() => toggle(item.id, "report")}
                   />
                 </div>
