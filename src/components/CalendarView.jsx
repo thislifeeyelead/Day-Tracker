@@ -151,9 +151,7 @@ export default function CalendarView({ items, setItems }) {
           }}
         >
           {monthDays.map((dateObj, index) => {
-            if (!dateObj) {
-              return <div key={`empty-${index}`} style={{ minHeight: 70 }} />;
-            }
+            if (!dateObj) return <div key={`empty-${index}`} style={{ minHeight: 70 }} />;
 
             const dateKey = formatDateLocal(dateObj);
             const isSelected = dateKey === selectedDate;
@@ -234,7 +232,7 @@ export default function CalendarView({ items, setItems }) {
                     ? "1px solid rgba(34,197,94,0.6)"
                     : "1px solid rgba(255,255,255,0.12)",
                   boxShadow: "0 8px 20px rgba(0,0,0,0.22)",
-                  opacity: item.completed ? 0.7 : 1
+                  opacity: item.completed ? 0.72 : 1
                 }}
               >
                 <div
@@ -259,6 +257,81 @@ export default function CalendarView({ items, setItems }) {
                 {item.priority && (
                   <div style={{ marginTop: 6 }}>
                     <strong>Priority:</strong> {item.priority}
+                  </div>
+                )}
+
+                {!!item.taskType && <Detail label="Task Type" value={item.taskType} />}
+                {!!item.jobId && <Detail label="Job ID" value={item.jobId} />}
+                {!!item.address && <Detail label="Address" value={item.address} />}
+                {!!item.className && <Detail label="Class" value={item.className} />}
+                {!!item.assignmentTitle && item.category === "School" && (
+                  <Detail label="Assignment" value={item.assignmentTitle} />
+                )}
+                {!!item.platform && (item.category === "Driving" || item.category === "Delivery") && (
+                  <Detail label="Platform" value={item.platform} />
+                )}
+                {!!item.workCompany && item.category === "Handshake / AI Work" && (
+                  <Detail label="Company / Platform" value={item.workCompany} />
+                )}
+
+                {(item.assignedDate || item.dueDate) && (
+                  <div style={{ marginTop: 8 }}>
+                    {!!item.assignedDate && <span><strong>Assigned:</strong> {item.assignedDate}</span>}
+                    {!!item.dueDate && <span style={{ marginLeft: 12 }}><strong>Due:</strong> {item.dueDate}</span>}
+                  </div>
+                )}
+
+                {(item.startTime || item.endTime) && (
+                  <Detail label="Time" value={`${item.startTime || "—"} to ${item.endTime || "—"}`} />
+                )}
+
+                {!!item.pay && <Detail label="Pay" value={`$${item.pay}`} accent />}
+                {!!item.targetEarnings && <Detail label="Target Earnings" value={`$${item.targetEarnings}`} accent />}
+                {!!item.minimumEarnings && <Detail label="Minimum Earnings" value={`$${item.minimumEarnings}`} />}
+                {!!item.estimatedHours && <Detail label="Estimated Hours" value={item.estimatedHours} />}
+                {!!item.minimumHours && <Detail label="Minimum Hours" value={item.minimumHours} />}
+                {!!item.actualHours && <Detail label="Actual Hours" value={item.actualHours} />}
+                {!!item.actualEarnings && <Detail label="Actual Earnings" value={`$${item.actualEarnings}`} accent />}
+                {!!item.zone && <Detail label="Zone Notes" value={item.zone} />}
+
+                {(item.contactName || item.contactEmail || item.contactPhone) && (
+                  <div style={{ marginTop: 10 }}>
+                    <div style={{ fontWeight: "bold", marginBottom: 4 }}>Contact</div>
+                    {!!item.contactName && <div>{item.contactName}</div>}
+                    {!!item.contactEmail && <div>{item.contactEmail}</div>}
+                    {!!item.contactPhone && <div>{item.contactPhone}</div>}
+                  </div>
+                )}
+
+                {(item.companyUrl || item.shopUrl || item.submissionLink || item.taskLink) && (
+                  <div
+                    style={{
+                      marginTop: 10,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6
+                    }}
+                  >
+                    {!!item.companyUrl && (
+                      <a href={item.companyUrl} target="_blank" rel="noreferrer" style={linkStyle}>
+                        Open company portal
+                      </a>
+                    )}
+                    {!!item.shopUrl && (
+                      <a href={item.shopUrl} target="_blank" rel="noreferrer" style={linkStyle}>
+                        Open task / shop link
+                      </a>
+                    )}
+                    {!!item.submissionLink && (
+                      <a href={item.submissionLink} target="_blank" rel="noreferrer" style={linkStyle}>
+                        Open submission link
+                      </a>
+                    )}
+                    {!!item.taskLink && (
+                      <a href={item.taskLink} target="_blank" rel="noreferrer" style={linkStyle}>
+                        Open work link
+                      </a>
+                    )}
                   </div>
                 )}
 
@@ -327,6 +400,14 @@ export default function CalendarView({ items, setItems }) {
   );
 }
 
+function Detail({ label, value, accent = false }) {
+  return (
+    <div style={{ marginTop: 4, color: accent ? "#86efac" : "white" }}>
+      <strong>{label}:</strong> {value}
+    </div>
+  );
+}
+
 function CheckRow({ label, checked, onClick }) {
   return (
     <div
@@ -352,6 +433,11 @@ const navBtn = {
   background: "rgba(255,255,255,0.08)",
   color: "white",
   fontWeight: "bold"
+};
+
+const linkStyle = {
+  color: "#93c5fd",
+  textDecoration: "underline"
 };
 
 function formatDateLocal(date) {
