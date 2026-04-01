@@ -33,16 +33,83 @@ const CATEGORY_OPTIONS = [
   "Car / Errands"
 ];
 
-export default function ItemForm({ onAdd }) {
-  const [form, setForm] = useState({
+const DEFAULTS_BY_CATEGORY = {
+  "Mystery Shop": {
+    estimatedHours: "1",
+    minimumHours: "1",
+    minimumEarnings: "",
+    targetHours: "",
+    targetEarnings: "",
+    mustDoToday: false
+  },
+  "School": {
+    estimatedHours: "2",
+    minimumHours: "1",
+    minimumEarnings: "",
+    targetHours: "",
+    targetEarnings: "",
+    mustDoToday: false
+  },
+  "Driving": {
+    estimatedHours: "",
+    minimumHours: "2",
+    minimumEarnings: "40",
+    targetHours: "4",
+    targetEarnings: "80",
+    mustDoToday: false
+  },
+  "Delivery": {
+    estimatedHours: "",
+    minimumHours: "2",
+    minimumEarnings: "40",
+    targetHours: "4",
+    targetEarnings: "80",
+    mustDoToday: false
+  },
+  "Handshake / AI Work": {
+    estimatedHours: "2",
+    minimumHours: "1",
+    minimumEarnings: "",
+    targetHours: "",
+    targetEarnings: "",
+    mustDoToday: false
+  },
+  "Personal": {
+    estimatedHours: "0.5",
+    minimumHours: "0.5",
+    minimumEarnings: "",
+    targetHours: "",
+    targetEarnings: "",
+    mustDoToday: false
+  },
+  "Admin": {
+    estimatedHours: "0.5",
+    minimumHours: "0.5",
+    minimumEarnings: "",
+    targetHours: "",
+    targetEarnings: "",
+    mustDoToday: false
+  },
+  "Car / Errands": {
+    estimatedHours: "0.5",
+    minimumHours: "0.5",
+    minimumEarnings: "",
+    targetHours: "",
+    targetEarnings: "",
+    mustDoToday: false
+  }
+};
+
+function makeInitialForm() {
+  return {
     category: "Mystery Shop",
 
     // shared
     title: "",
     notes: "",
     dueDate: "",
-    estimatedHours: "",
-    minimumHours: "",
+    estimatedHours: "1",
+    minimumHours: "1",
     minimumEarnings: "",
     mustDoToday: false,
     priority: "Normal",
@@ -78,7 +145,11 @@ export default function ItemForm({ onAdd }) {
     payoutType: "",
     hourlyRate: "",
     taskLink: ""
-  });
+  };
+}
+
+export default function ItemForm({ onAdd }) {
+  const [form, setForm] = useState(makeInitialForm());
 
   const fieldStyle = useMemo(
     () => ({
@@ -95,6 +166,20 @@ export default function ItemForm({ onAdd }) {
 
   function updateField(key, value) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handleCategoryChange(value) {
+    const defaults = DEFAULTS_BY_CATEGORY[value] || {};
+    setForm((prev) => ({
+      ...prev,
+      category: value,
+      estimatedHours: defaults.estimatedHours ?? prev.estimatedHours,
+      minimumHours: defaults.minimumHours ?? prev.minimumHours,
+      minimumEarnings: defaults.minimumEarnings ?? prev.minimumEarnings,
+      targetHours: defaults.targetHours ?? prev.targetHours,
+      targetEarnings: defaults.targetEarnings ?? prev.targetEarnings,
+      mustDoToday: defaults.mustDoToday ?? prev.mustDoToday
+    }));
   }
 
   function handleCompanyChange(value) {
@@ -119,6 +204,7 @@ export default function ItemForm({ onAdd }) {
       ...form,
       title: finalTitle,
       id: Date.now(),
+      completed: false,
       checklist: {
         guidelines: false,
         visit: false,
@@ -126,41 +212,7 @@ export default function ItemForm({ onAdd }) {
       }
     });
 
-    setForm((prev) => ({
-      ...prev,
-      title: "",
-      notes: "",
-      dueDate: "",
-      estimatedHours: "",
-      minimumHours: "",
-      minimumEarnings: "",
-      mustDoToday: false,
-      priority: "Normal",
-      company: "IntelliShop",
-      companyUrl: "https://www.insite.intelli-shop.com/shoppers/",
-      shopUrl: "",
-      jobId: "",
-      taskType: "",
-      assignedDate: "",
-      startTime: "",
-      endTime: "",
-      address: "",
-      pay: "",
-      contactName: "",
-      contactEmail: "",
-      contactPhone: "",
-      className: "",
-      assignmentTitle: "",
-      submissionLink: "",
-      platform: "",
-      zone: "",
-      targetHours: "",
-      targetEarnings: "",
-      workCompany: "",
-      payoutType: "",
-      hourlyRate: "",
-      taskLink: ""
-    }));
+    setForm(makeInitialForm());
   }
 
   return (
@@ -182,7 +234,7 @@ export default function ItemForm({ onAdd }) {
 
       <select
         value={form.category}
-        onChange={(e) => updateField("category", e.target.value)}
+        onChange={(e) => handleCategoryChange(e.target.value)}
         style={fieldStyle}
       >
         {CATEGORY_OPTIONS.map((option) => (
@@ -455,22 +507,26 @@ export default function ItemForm({ onAdd }) {
         </>
       )}
 
-      {form.category !== "School" && form.category !== "Mystery Shop" && form.category !== "Driving" && form.category !== "Delivery" && form.category !== "Handshake / AI Work" && (
-        <>
-          <input
-            type="date"
-            value={form.dueDate}
-            onChange={(e) => updateField("dueDate", e.target.value)}
-            style={fieldStyle}
-          />
-          <input
-            placeholder="Estimated hours"
-            value={form.estimatedHours}
-            onChange={(e) => updateField("estimatedHours", e.target.value)}
-            style={fieldStyle}
-          />
-        </>
-      )}
+      {form.category !== "School" &&
+        form.category !== "Mystery Shop" &&
+        form.category !== "Driving" &&
+        form.category !== "Delivery" &&
+        form.category !== "Handshake / AI Work" && (
+          <>
+            <input
+              type="date"
+              value={form.dueDate}
+              onChange={(e) => updateField("dueDate", e.target.value)}
+              style={fieldStyle}
+            />
+            <input
+              placeholder="Estimated hours"
+              value={form.estimatedHours}
+              onChange={(e) => updateField("estimatedHours", e.target.value)}
+              style={fieldStyle}
+            />
+          </>
+        )}
 
       <div style={{ display: "flex", gap: 10 }}>
         <select
