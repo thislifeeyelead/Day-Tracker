@@ -1,15 +1,74 @@
+import React, { useMemo, useState } from "react";
 
-import React, { useState } from "react";
+const COMPANY_OPTIONS = [
+  { name: "Presto Shopper", url: "https://insta.prestomobilesurveys.com/site/Map/p/athpower" },
+  { name: "ISecretShop", url: "https://www.isecretshop.com/shop/assigned" },
+  { name: "CXE", url: "https://www.cxeview.com/shoppers/ShopperLog.norm.php" },
+  { name: "CSA / Consumer Service Analysis", url: "https://www.sassieshop.com/2csa/shoppers/LoginShopper.norm.php" },
+  { name: "Intouch / SeeLevel HX", url: "https://portal.seelevelhx.com/shoppers/LoginShopper.norm.php" },
+  { name: "KSS", url: "https://www.sassieshop.com/2kern/shoppers/LoginShopper.norm.php" },
+  { name: "Reality Based Group", url: "https://www.realitybasedreports.com/shoppers/LoginShopper.norm.php" },
+  { name: "Mystery Shoppers", url: "https://www.sassieshop.com/2mysteryshoppers/shoppers/LoginShopper.norm.php" },
+  { name: "Customer Impact", url: "https://www.ci-gateway.com/shoppers/LoginShopper.norm.php" },
+  { name: "IntelliShop", url: "https://www.insite.intelli-shop.com/shoppers/" },
+  { name: "Storecheckers", url: "https://www.my.storecheckers.co.uk/shoppers/LoginShopper.norm.php" },
+  { name: "HS Brands", url: "https://www.mymysteryshop.com/shoppers/LoginShopper.php" },
+  { name: "Market Viewpoint", url: "https://www.mysteryshopping.marketviewpoint.com/shoppers/LoginShopper.norm.php" },
+  { name: "Ipsos", url: "https://www.us-sassie.ipsosmysteryshopping.com/shoppers/LoginShopper.php" },
+  { name: "Data Quest", url: "https://www.sassieshop.com/2dq/shoppers/LoginShopper.norm.php" },
+  { name: "Shoppers Inc", url: "https://www.sassieshop.com/2si/shoppers/LoginShopper.norm.php" },
+  { name: "ath Power Consulting", url: "http://prestomap.com/p/athpower" },
+  { name: "BARE", url: "https://www.sassieshop.com/2bareusa/index.norm.php" },
+  { name: "Other", url: "" }
+];
 
 export default function ItemForm({ onAdd }) {
   const [form, setForm] = useState({
     title: "",
-    platform: "IntelliShop",
+    company: "IntelliShop",
+    companyUrl: "https://www.insite.intelli-shop.com/shoppers/",
+    platform: "Mystery Shop",
     category: "Mystery Shop",
-    date: "",
-    time: "",
+    taskType: "",
+    jobId: "",
+    assignedDate: "",
+    dueDate: "",
+    startTime: "",
+    endTime: "",
+    address: "",
     pay: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    shopUrl: "",
+    notes: ""
   });
+
+  const fieldStyle = useMemo(
+    () => ({
+      padding: 12,
+      borderRadius: 12,
+      border: "1px solid rgba(255,255,255,0.15)",
+      background: "rgba(255,255,255,0.06)",
+      color: "white",
+      outline: "none",
+      width: "100%"
+    }),
+    []
+  );
+
+  function updateField(key, value) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handleCompanyChange(value) {
+    const found = COMPANY_OPTIONS.find((c) => c.name === value);
+    setForm((prev) => ({
+      ...prev,
+      company: value,
+      companyUrl: found?.url || ""
+    }));
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -21,28 +80,31 @@ export default function ItemForm({ onAdd }) {
       checklist: {
         guidelines: false,
         visit: false,
-        report: false,
-      },
+        report: false
+      }
     });
 
     setForm({
       title: "",
-      platform: "IntelliShop",
+      company: "IntelliShop",
+      companyUrl: "https://www.insite.intelli-shop.com/shoppers/",
+      platform: "Mystery Shop",
       category: "Mystery Shop",
-      date: "",
-      time: "",
+      taskType: "",
+      jobId: "",
+      assignedDate: "",
+      dueDate: "",
+      startTime: "",
+      endTime: "",
+      address: "",
       pay: "",
+      contactName: "",
+      contactEmail: "",
+      contactPhone: "",
+      shopUrl: "",
+      notes: ""
     });
   }
-
-  const fieldStyle = {
-    padding: 12,
-    borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.15)",
-    background: "rgba(255,255,255,0.06)",
-    color: "white",
-    outline: "none",
-  };
 
   return (
     <form
@@ -56,39 +118,32 @@ export default function ItemForm({ onAdd }) {
         boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
         display: "flex",
         flexDirection: "column",
-        gap: 12,
+        gap: 12
       }}
     >
+      <h2 style={{ margin: 0 }}>Add Task</h2>
+
       <input
         placeholder="Title"
         value={form.title}
-        onChange={(e) => setForm({ ...form, title: e.target.value })}
+        onChange={(e) => updateField("title", e.target.value)}
         style={fieldStyle}
       />
 
       <div style={{ display: "flex", gap: 10 }}>
         <select
-          value={form.platform}
-          onChange={(e) => setForm({ ...form, platform: e.target.value })}
+          value={form.company}
+          onChange={(e) => handleCompanyChange(e.target.value)}
           style={{ ...fieldStyle, flex: 1 }}
         >
-          <option>IntelliShop</option>
-          <option>Presto</option>
-          <option>iSecretShop</option>
-          <option>Market Force</option>
-          <option>BestMark</option>
-          <option>GigSpot</option>
-          <option>Uber</option>
-          <option>Lyft</option>
-          <option>Roadie</option>
-          <option>Shipt</option>
-          <option>School</option>
-          <option>Personal</option>
+          {COMPANY_OPTIONS.map((company) => (
+            <option key={company.name}>{company.name}</option>
+          ))}
         </select>
 
         <select
           value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
+          onChange={(e) => updateField("category", e.target.value)}
           style={{ ...fieldStyle, flex: 1 }}
         >
           <option>Mystery Shop</option>
@@ -99,18 +154,68 @@ export default function ItemForm({ onAdd }) {
         </select>
       </div>
 
+      <input
+        placeholder="Company portal URL"
+        value={form.companyUrl}
+        onChange={(e) => updateField("companyUrl", e.target.value)}
+        style={fieldStyle}
+      />
+
+      <input
+        placeholder="Specific shop / task URL"
+        value={form.shopUrl}
+        onChange={(e) => updateField("shopUrl", e.target.value)}
+        style={fieldStyle}
+      />
+
+      <div style={{ display: "flex", gap: 10 }}>
+        <input
+          placeholder="Job ID"
+          value={form.jobId}
+          onChange={(e) => updateField("jobId", e.target.value)}
+          style={{ ...fieldStyle, flex: 1 }}
+        />
+        <input
+          placeholder="Task type"
+          value={form.taskType}
+          onChange={(e) => updateField("taskType", e.target.value)}
+          style={{ ...fieldStyle, flex: 1 }}
+        />
+      </div>
+
+      <input
+        placeholder="Address"
+        value={form.address}
+        onChange={(e) => updateField("address", e.target.value)}
+        style={fieldStyle}
+      />
+
       <div style={{ display: "flex", gap: 10 }}>
         <input
           type="date"
-          value={form.date}
-          onChange={(e) => setForm({ ...form, date: e.target.value })}
+          value={form.assignedDate}
+          onChange={(e) => updateField("assignedDate", e.target.value)}
           style={{ ...fieldStyle, flex: 1 }}
         />
+        <input
+          type="date"
+          value={form.dueDate}
+          onChange={(e) => updateField("dueDate", e.target.value)}
+          style={{ ...fieldStyle, flex: 1 }}
+        />
+      </div>
 
+      <div style={{ display: "flex", gap: 10 }}>
         <input
           type="time"
-          value={form.time}
-          onChange={(e) => setForm({ ...form, time: e.target.value })}
+          value={form.startTime}
+          onChange={(e) => updateField("startTime", e.target.value)}
+          style={{ ...fieldStyle, flex: 1 }}
+        />
+        <input
+          type="time"
+          value={form.endTime}
+          onChange={(e) => updateField("endTime", e.target.value)}
           style={{ ...fieldStyle, flex: 1 }}
         />
       </div>
@@ -118,8 +223,37 @@ export default function ItemForm({ onAdd }) {
       <input
         placeholder="Pay"
         value={form.pay}
-        onChange={(e) => setForm({ ...form, pay: e.target.value })}
+        onChange={(e) => updateField("pay", e.target.value)}
         style={fieldStyle}
+      />
+
+      <div style={{ display: "flex", gap: 10 }}>
+        <input
+          placeholder="Contact name"
+          value={form.contactName}
+          onChange={(e) => updateField("contactName", e.target.value)}
+          style={{ ...fieldStyle, flex: 1 }}
+        />
+        <input
+          placeholder="Contact phone"
+          value={form.contactPhone}
+          onChange={(e) => updateField("contactPhone", e.target.value)}
+          style={{ ...fieldStyle, flex: 1 }}
+        />
+      </div>
+
+      <input
+        placeholder="Contact email"
+        value={form.contactEmail}
+        onChange={(e) => updateField("contactEmail", e.target.value)}
+        style={fieldStyle}
+      />
+
+      <textarea
+        placeholder="Notes"
+        value={form.notes}
+        onChange={(e) => updateField("notes", e.target.value)}
+        style={{ ...fieldStyle, minHeight: 100, resize: "vertical" }}
       />
 
       <button
@@ -132,10 +266,10 @@ export default function ItemForm({ onAdd }) {
           fontWeight: "bold",
           background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
           color: "white",
-          boxShadow: "0 8px 20px rgba(99,102,241,0.35)",
+          boxShadow: "0 8px 20px rgba(99,102,241,0.35)"
         }}
       >
-        Add Job
+        Add Task
       </button>
     </form>
   );
