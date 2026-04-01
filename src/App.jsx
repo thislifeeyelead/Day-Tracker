@@ -13,66 +13,72 @@ const appStyle = {
 
 export default function App() {
   const [items, setItems] = useState([]);
-  const [goal, setGoal] = useState(200);
+  const [moneyGoal, setMoneyGoal] = useState(1000);
   const [schoolGoalHours, setSchoolGoalHours] = useState(10);
-  const [drivingGoalHours, setDrivingGoalHours] = useState(20);
-  const [handshakeGoalHours, setHandshakeGoalHours] = useState(8);
+  const [drivingGoalHours, setDrivingGoalHours] = useState(10);
+  const [handshakeGoalHours, setHandshakeGoalHours] = useState(30);
+  const [deadlineAmount, setDeadlineAmount] = useState(2000);
+  const [deadlineDate, setDeadlineDate] = useState("");
   const [view, setView] = useState("dashboard");
 
   useEffect(() => {
-    const savedItems = localStorage.getItem("darcy_v5_items");
-    const savedGoal = localStorage.getItem("darcy_v5_goal");
-    const savedSchoolGoal = localStorage.getItem("darcy_school_goal");
-    const savedDrivingGoal = localStorage.getItem("darcy_driving_goal");
-    const savedHandshakeGoal = localStorage.getItem("darcy_handshake_goal");
+    const savedItems = localStorage.getItem("daytracker_items");
+    const savedMoneyGoal = localStorage.getItem("daytracker_money_goal");
+    const savedSchoolGoal = localStorage.getItem("daytracker_school_goal");
+    const savedDrivingGoal = localStorage.getItem("daytracker_driving_goal");
+    const savedHandshakeGoal = localStorage.getItem("daytracker_handshake_goal");
+    const savedDeadlineAmount = localStorage.getItem("daytracker_deadline_amount");
+    const savedDeadlineDate = localStorage.getItem("daytracker_deadline_date");
 
     if (savedItems) setItems(JSON.parse(savedItems));
-    if (savedGoal) setGoal(Number(savedGoal));
+    if (savedMoneyGoal) setMoneyGoal(Number(savedMoneyGoal));
     if (savedSchoolGoal) setSchoolGoalHours(Number(savedSchoolGoal));
     if (savedDrivingGoal) setDrivingGoalHours(Number(savedDrivingGoal));
     if (savedHandshakeGoal) setHandshakeGoalHours(Number(savedHandshakeGoal));
+    if (savedDeadlineAmount) setDeadlineAmount(Number(savedDeadlineAmount));
+    if (savedDeadlineDate) setDeadlineDate(savedDeadlineDate);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("darcy_v5_items", JSON.stringify(items));
+    localStorage.setItem("daytracker_items", JSON.stringify(items));
   }, [items]);
 
   useEffect(() => {
-    localStorage.setItem("darcy_v5_goal", String(goal));
-  }, [goal]);
+    localStorage.setItem("daytracker_money_goal", String(moneyGoal));
+  }, [moneyGoal]);
 
   useEffect(() => {
-    localStorage.setItem("darcy_school_goal", String(schoolGoalHours));
+    localStorage.setItem("daytracker_school_goal", String(schoolGoalHours));
   }, [schoolGoalHours]);
 
   useEffect(() => {
-    localStorage.setItem("darcy_driving_goal", String(drivingGoalHours));
+    localStorage.setItem("daytracker_driving_goal", String(drivingGoalHours));
   }, [drivingGoalHours]);
 
   useEffect(() => {
-    localStorage.setItem("darcy_handshake_goal", String(handshakeGoalHours));
+    localStorage.setItem("daytracker_handshake_goal", String(handshakeGoalHours));
   }, [handshakeGoalHours]);
 
-  const total = useMemo(
-    () => items.reduce((sum, i) => sum + Number(i.pay || 0), 0),
-    [items]
-  );
+  useEffect(() => {
+    localStorage.setItem("daytracker_deadline_amount", String(deadlineAmount));
+  }, [deadlineAmount]);
 
-  const remaining = Math.max(goal - total, 0);
+  useEffect(() => {
+    localStorage.setItem("daytracker_deadline_date", deadlineDate);
+  }, [deadlineDate]);
 
-  const unfinished = useMemo(
+  const totalEarned = useMemo(
     () =>
-      items.filter(
-        (i) =>
-          !i.completed &&
-          (
-            !i.checklist?.guidelines ||
-            !i.checklist?.visit ||
-            !i.checklist?.report
-          )
-      ),
+      items.reduce((sum, item) => {
+        const earned = Number(item.actualEarnings || item.pay || item.targetEarnings || 0);
+        return sum + earned;
+      }, 0),
     [items]
   );
+
+  const moneyRemaining = Math.max(moneyGoal - totalEarned, 0);
+
+  const unfinished = useMemo(() => items.filter((item) => !item.completed), [items]);
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -86,7 +92,7 @@ export default function App() {
     <div style={appStyle}>
       <Nav view={view} setView={setView} />
 
-      <div style={{ maxWidth: 980, margin: "0 auto", padding: "20px 20px 60px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 20px 60px" }}>
         <div
           style={{
             padding: 24,
@@ -98,7 +104,7 @@ export default function App() {
             boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
           }}
         >
-          <h1 style={{ margin: 0, fontSize: 42, textAlign: "center" }}>
+          <h1 style={{ margin: 0, fontSize: 38, textAlign: "center" }}>
             Darcy Life Hub
           </h1>
           <p
@@ -109,53 +115,28 @@ export default function App() {
               opacity: 0.9,
             }}
           >
-            One place for mystery shops, gigs, school, car schedule, lunch, and the rest of the circus.
+            One place for shops, school, driving, Handshake, and the rest of the circus.
           </p>
 
           <div
             style={{
               marginTop: 18,
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: 12
+              gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+              gap: 12,
             }}
           >
-            <label style={{ fontSize: 14, opacity: 0.8 }}>
-              Weekly Money Goal
+            <GoalInput label="Weekly Money Goal" value={moneyGoal} onChange={setMoneyGoal} />
+            <GoalInput label="School Hours Goal" value={schoolGoalHours} onChange={setSchoolGoalHours} />
+            <GoalInput label="Driving Hours Goal" value={drivingGoalHours} onChange={setDrivingGoalHours} />
+            <GoalInput label="Handshake Hours Goal" value={handshakeGoalHours} onChange={setHandshakeGoalHours} />
+            <GoalInput label="$ Deadline Goal" value={deadlineAmount} onChange={setDeadlineAmount} />
+            <label style={{ fontSize: 14, opacity: 0.9 }}>
+              Deadline Date
               <input
-                type="number"
-                value={goal}
-                onChange={(e) => setGoal(Number(e.target.value || 0))}
-                style={goalInputStyle}
-              />
-            </label>
-
-            <label style={{ fontSize: 14, opacity: 0.8 }}>
-              School Hours Goal
-              <input
-                type="number"
-                value={schoolGoalHours}
-                onChange={(e) => setSchoolGoalHours(Number(e.target.value || 0))}
-                style={goalInputStyle}
-              />
-            </label>
-
-            <label style={{ fontSize: 14, opacity: 0.8 }}>
-              Driving Hours Goal
-              <input
-                type="number"
-                value={drivingGoalHours}
-                onChange={(e) => setDrivingGoalHours(Number(e.target.value || 0))}
-                style={goalInputStyle}
-              />
-            </label>
-
-            <label style={{ fontSize: 14, opacity: 0.8 }}>
-              Handshake Hours Goal
-              <input
-                type="number"
-                value={handshakeGoalHours}
-                onChange={(e) => setHandshakeGoalHours(Number(e.target.value || 0))}
+                type="date"
+                value={deadlineDate}
+                onChange={(e) => setDeadlineDate(e.target.value)}
                 style={goalInputStyle}
               />
             </label>
@@ -165,12 +146,16 @@ export default function App() {
         {view === "dashboard" && (
           <Dashboard
             items={sortedItems}
-            total={total}
-            remaining={remaining}
             unfinished={unfinished}
+            totalEarned={totalEarned}
+            moneyGoal={moneyGoal}
+            moneyRemaining={moneyRemaining}
             schoolGoalHours={schoolGoalHours}
             drivingGoalHours={drivingGoalHours}
             handshakeGoalHours={handshakeGoalHours}
+            deadlineAmount={deadlineAmount}
+            deadlineDate={deadlineDate}
+            setItems={setItems}
           />
         )}
 
@@ -183,6 +168,20 @@ export default function App() {
         )}
       </div>
     </div>
+  );
+}
+
+function GoalInput({ label, value, onChange }) {
+  return (
+    <label style={{ fontSize: 14, opacity: 0.9 }}>
+      {label}
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value || 0))}
+        style={goalInputStyle}
+      />
+    </label>
   );
 }
 
