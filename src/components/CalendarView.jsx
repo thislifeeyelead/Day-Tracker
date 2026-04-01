@@ -1,4 +1,3 @@
-
 import React from "react";
 
 export default function CalendarView({ items, setItems }) {
@@ -9,8 +8,8 @@ export default function CalendarView({ items, setItems }) {
             ...item,
             checklist: {
               ...item.checklist,
-              [key]: !item.checklist[key],
-            },
+              [key]: !item.checklist[key]
+            }
           }
         : item
     );
@@ -29,9 +28,16 @@ export default function CalendarView({ items, setItems }) {
     return "rgba(255,255,255,0.06)";
   }
 
+  function linkStyle() {
+    return {
+      color: "#93c5fd",
+      textDecoration: "underline"
+    };
+  }
+
   return (
     <div>
-      <h2 style={{ marginBottom: 20, textAlign: "center" }}>Your Jobs</h2>
+      <h2 style={{ marginBottom: 20, textAlign: "center" }}>Your Tasks</h2>
 
       <div style={{ display: "grid", gap: 15 }}>
         {items.length === 0 && (
@@ -41,10 +47,10 @@ export default function CalendarView({ items, setItems }) {
               borderRadius: 16,
               background: "rgba(255,255,255,0.05)",
               textAlign: "center",
-              opacity: 0.8,
+              opacity: 0.8
             }}
           >
-            No jobs yet.
+            No tasks yet.
           </div>
         )}
 
@@ -57,22 +63,92 @@ export default function CalendarView({ items, setItems }) {
               background: cardBackground(item.category),
               backdropFilter: "blur(10px)",
               border: "1px solid rgba(255,255,255,0.12)",
-              boxShadow: "0 8px 20px rgba(0,0,0,0.22)",
+              boxShadow: "0 8px 20px rgba(0,0,0,0.22)"
             }}
           >
             <div style={{ fontSize: 18, fontWeight: "bold" }}>{item.title}</div>
 
             <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>
-              {item.platform} • {item.category}
+              {item.company} • {item.category}
             </div>
 
-            <div style={{ marginTop: 8 }}>
-              {item.date} {item.time}
-            </div>
+            {!!item.taskType && (
+              <div style={{ marginTop: 8 }}>
+                <strong>Task Type:</strong> {item.taskType}
+              </div>
+            )}
 
-            <div style={{ marginTop: 8, color: "#86efac", fontWeight: "bold" }}>
-              ${item.pay}
-            </div>
+            {!!item.jobId && (
+              <div style={{ marginTop: 4 }}>
+                <strong>Job ID:</strong> {item.jobId}
+              </div>
+            )}
+
+            {!!item.address && (
+              <div style={{ marginTop: 4 }}>
+                <strong>Address:</strong> {item.address}
+              </div>
+            )}
+
+            {(item.assignedDate || item.dueDate) && (
+              <div style={{ marginTop: 8 }}>
+                <strong>Assigned:</strong> {item.assignedDate || "—"}{" "}
+                <strong style={{ marginLeft: 12 }}>Due:</strong> {item.dueDate || "—"}
+              </div>
+            )}
+
+            {(item.startTime || item.endTime) && (
+              <div style={{ marginTop: 4 }}>
+                <strong>Time Window:</strong> {item.startTime || "—"} to {item.endTime || "—"}
+              </div>
+            )}
+
+            {!!item.pay && (
+              <div style={{ marginTop: 8, color: "#86efac", fontWeight: "bold" }}>
+                ${item.pay}
+              </div>
+            )}
+
+            {(item.contactName || item.contactEmail || item.contactPhone) && (
+              <div style={{ marginTop: 10 }}>
+                <div style={{ fontWeight: "bold", marginBottom: 4 }}>Contact</div>
+                {!!item.contactName && <div>{item.contactName}</div>}
+                {!!item.contactEmail && <div>{item.contactEmail}</div>}
+                {!!item.contactPhone && <div>{item.contactPhone}</div>}
+              </div>
+            )}
+
+            {(item.companyUrl || item.shopUrl) && (
+              <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                {!!item.companyUrl && (
+                  <a
+                    href={item.companyUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={linkStyle()}
+                  >
+                    Open company portal
+                  </a>
+                )}
+                {!!item.shopUrl && (
+                  <a
+                    href={item.shopUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={linkStyle()}
+                  >
+                    Open task / shop link
+                  </a>
+                )}
+              </div>
+            )}
+
+            {!!item.notes && (
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontWeight: "bold", marginBottom: 4 }}>Notes</div>
+                <div style={{ whiteSpace: "pre-wrap", opacity: 0.9 }}>{item.notes}</div>
+              </div>
+            )}
 
             <div style={{ marginTop: 12 }}>
               <CheckRow
@@ -101,7 +177,7 @@ export default function CalendarView({ items, setItems }) {
                 borderRadius: 10,
                 cursor: "pointer",
                 background: "rgba(239,68,68,0.18)",
-                color: "#fecaca",
+                color: "#fecaca"
               }}
             >
               Delete
@@ -122,7 +198,7 @@ function CheckRow({ label, checked, onClick }) {
         marginTop: 6,
         padding: 8,
         borderRadius: 10,
-        background: checked ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.05)",
+        background: checked ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.05)"
       }}
     >
       {checked ? "✔ " : "⬜ "} {label}
