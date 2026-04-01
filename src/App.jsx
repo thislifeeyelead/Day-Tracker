@@ -14,14 +14,23 @@ const appStyle = {
 export default function App() {
   const [items, setItems] = useState([]);
   const [goal, setGoal] = useState(200);
+  const [schoolGoalHours, setSchoolGoalHours] = useState(10);
+  const [drivingGoalHours, setDrivingGoalHours] = useState(20);
+  const [handshakeGoalHours, setHandshakeGoalHours] = useState(8);
   const [view, setView] = useState("dashboard");
 
   useEffect(() => {
     const savedItems = localStorage.getItem("darcy_v5_items");
     const savedGoal = localStorage.getItem("darcy_v5_goal");
+    const savedSchoolGoal = localStorage.getItem("darcy_school_goal");
+    const savedDrivingGoal = localStorage.getItem("darcy_driving_goal");
+    const savedHandshakeGoal = localStorage.getItem("darcy_handshake_goal");
 
     if (savedItems) setItems(JSON.parse(savedItems));
     if (savedGoal) setGoal(Number(savedGoal));
+    if (savedSchoolGoal) setSchoolGoalHours(Number(savedSchoolGoal));
+    if (savedDrivingGoal) setDrivingGoalHours(Number(savedDrivingGoal));
+    if (savedHandshakeGoal) setHandshakeGoalHours(Number(savedHandshakeGoal));
   }, []);
 
   useEffect(() => {
@@ -31,6 +40,18 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("darcy_v5_goal", String(goal));
   }, [goal]);
+
+  useEffect(() => {
+    localStorage.setItem("darcy_school_goal", String(schoolGoalHours));
+  }, [schoolGoalHours]);
+
+  useEffect(() => {
+    localStorage.setItem("darcy_driving_goal", String(drivingGoalHours));
+  }, [drivingGoalHours]);
+
+  useEffect(() => {
+    localStorage.setItem("darcy_handshake_goal", String(handshakeGoalHours));
+  }, [handshakeGoalHours]);
 
   const total = useMemo(
     () => items.reduce((sum, i) => sum + Number(i.pay || 0), 0),
@@ -43,17 +64,20 @@ export default function App() {
     () =>
       items.filter(
         (i) =>
-          !i.checklist?.guidelines ||
-          !i.checklist?.visit ||
-          !i.checklist?.report
+          !i.completed &&
+          (
+            !i.checklist?.guidelines ||
+            !i.checklist?.visit ||
+            !i.checklist?.report
+          )
       ),
     [items]
   );
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
-      const aKey = `${a.date || "9999-12-31"} ${a.time || "23:59"}`;
-      const bKey = `${b.date || "9999-12-31"} ${b.time || "23:59"}`;
+      const aKey = `${a.dueDate || "9999-12-31"} ${a.startTime || "23:59"}`;
+      const bKey = `${b.dueDate || "9999-12-31"} ${b.startTime || "23:59"}`;
       return aKey.localeCompare(bKey);
     });
   }, [items]);
@@ -62,7 +86,7 @@ export default function App() {
     <div style={appStyle}>
       <Nav view={view} setView={setView} />
 
-      <div style={{ maxWidth: 780, margin: "0 auto", padding: "20px 20px 60px" }}>
+      <div style={{ maxWidth: 980, margin: "0 auto", padding: "20px 20px 60px" }}>
         <div
           style={{
             padding: 24,
@@ -88,22 +112,51 @@ export default function App() {
             One place for mystery shops, gigs, school, car schedule, lunch, and the rest of the circus.
           </p>
 
-          <div style={{ marginTop: 18, textAlign: "center" }}>
+          <div
+            style={{
+              marginTop: 18,
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: 12
+            }}
+          >
             <label style={{ fontSize: 14, opacity: 0.8 }}>
-              Weekly Goal
+              Weekly Money Goal
               <input
                 type="number"
                 value={goal}
                 onChange={(e) => setGoal(Number(e.target.value || 0))}
-                style={{
-                  marginLeft: 10,
-                  width: 90,
-                  padding: "8px 10px",
-                  borderRadius: 10,
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  background: "rgba(255,255,255,0.08)",
-                  color: "white",
-                }}
+                style={goalInputStyle}
+              />
+            </label>
+
+            <label style={{ fontSize: 14, opacity: 0.8 }}>
+              School Hours Goal
+              <input
+                type="number"
+                value={schoolGoalHours}
+                onChange={(e) => setSchoolGoalHours(Number(e.target.value || 0))}
+                style={goalInputStyle}
+              />
+            </label>
+
+            <label style={{ fontSize: 14, opacity: 0.8 }}>
+              Driving Hours Goal
+              <input
+                type="number"
+                value={drivingGoalHours}
+                onChange={(e) => setDrivingGoalHours(Number(e.target.value || 0))}
+                style={goalInputStyle}
+              />
+            </label>
+
+            <label style={{ fontSize: 14, opacity: 0.8 }}>
+              Handshake Hours Goal
+              <input
+                type="number"
+                value={handshakeGoalHours}
+                onChange={(e) => setHandshakeGoalHours(Number(e.target.value || 0))}
+                style={goalInputStyle}
               />
             </label>
           </div>
@@ -115,6 +168,9 @@ export default function App() {
             total={total}
             remaining={remaining}
             unfinished={unfinished}
+            schoolGoalHours={schoolGoalHours}
+            drivingGoalHours={drivingGoalHours}
+            handshakeGoalHours={handshakeGoalHours}
           />
         )}
 
@@ -129,3 +185,13 @@ export default function App() {
     </div>
   );
 }
+
+const goalInputStyle = {
+  marginTop: 8,
+  width: "100%",
+  padding: "8px 10px",
+  borderRadius: 10,
+  border: "1px solid rgba(255,255,255,0.18)",
+  background: "rgba(255,255,255,0.08)",
+  color: "white",
+};
